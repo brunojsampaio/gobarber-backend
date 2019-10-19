@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "git@github.com:brunojsampaio/gobarber-backend.git",
   "author": "Bruno Sampaio <brunojsampaio@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
