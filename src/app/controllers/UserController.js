@@ -1,5 +1,7 @@
 import * as Yup from 'yup';
+
 import User from '../models/User';
+import handleValidation from './exceptions/validation';
 
 class UserController {
   async store(req, res) {
@@ -16,10 +18,7 @@ class UserController {
     try {
       await schema.validate(req.body, { abortEarly: false });
     } catch (err) {
-      const errors = err.inner.map(error => {
-        return { path: error.path, type: error.type, message: error.message };
-      });
-      return res.status(400).json({ error: 'Validation fails', errors });
+      return res.status(400).json(await handleValidation(err));
     }
 
     // if (!(await schema.isValid(req.body))) {
@@ -55,10 +54,7 @@ class UserController {
     try {
       await schema.validate(req.body, { abortEarly: false });
     } catch (err) {
-      const errors = await err.inner.map(error => {
-        return { path: error.path, type: error.type, message: error.message };
-      });
-      return res.status(400).json({ error: 'Validation fails', errors });
+      return res.status(400).json(await handleValidation(err));
     }
 
     // if (!(await schema.isValid(req.body))) {
@@ -69,7 +65,7 @@ class UserController {
 
     const user = await User.findByPk(req.userId);
 
-    if (email !== user.email) {
+    if (email && email !== user.email) {
       const userExists = await User.findOne({ where: { email } });
 
       if (userExists) {
@@ -83,7 +79,7 @@ class UserController {
 
     const { id, name, provider } = await user.update(req.body);
 
-    return res.json({ id, name, email, provider });
+    return res.json({ id, name, email: user.email, provider });
   }
 }
 

@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 
 import User from '../models/User';
 import authConfig from '../../config/auth';
+import handleValidation from './exceptions/validation';
 
 class SessionController {
   async store(req, res) {
@@ -12,13 +13,11 @@ class SessionController {
         .required(),
       password: Yup.string().required(),
     });
+
     try {
       await schema.validate(req.body, { abortEarly: false });
     } catch (err) {
-      const errors = await err.inner.map(error => {
-        return { path: error.path, type: error.type, message: error.message };
-      });
-      return res.status(400).json({ error: 'Validation fails', errors });
+      return res.status(400).json(await handleValidation(err));
     }
 
     // if (!(await schema.isValid(req.body))) {
