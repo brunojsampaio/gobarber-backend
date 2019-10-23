@@ -12,10 +12,18 @@ class SessionController {
         .required(),
       password: Yup.string().required(),
     });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+    try {
+      await schema.validate(req.body, { abortEarly: false });
+    } catch (err) {
+      const errors = await err.inner.map(error => {
+        return { path: error.path, type: error.type, message: error.message };
+      });
+      return res.status(400).json({ error: 'Validation fails', errors });
     }
+
+    // if (!(await schema.isValid(req.body))) {
+    //   return res.status(400).json({ error: 'Validation fails' });
+    // }
 
     const { email, password } = req.body;
 
