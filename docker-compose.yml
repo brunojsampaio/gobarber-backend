@@ -1,0 +1,39 @@
+version: '3'
+
+volumes:
+  dados:
+networks:
+  banco:
+  mongo:
+  fila:
+
+services:
+  db:
+    image: postgres:11-alpine
+    volumes:
+      # Volume dos dados
+      - dados:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - banco
+  mongo:
+    image: mongo:4
+    ports:
+      - 27017:27017
+    networks:
+      - mongo
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    networks:
+      - mongo
+    depends_on:
+      - mongo
+  queue:
+    image: redis:3.2
+    ports:
+      - 6379:6379
+    networks:
+      - fila
